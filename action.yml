@@ -1,0 +1,42 @@
+name: 'GCP Registry Login'
+description: 'Logs you into GCP with a service key and sets up Docker auth for gcr.io'
+inputs:
+  service_key:
+    description: 'GCP Service Key'
+    required: true
+  # Only one of project_id or endpoint is required
+  project_id:
+    description: 'GCP Project ID'
+    required: false
+  endpoint:
+    description: 'GCP Endpoint of some sort that contains a project ID (Ex: gcr.io/your-project-id/foo/bar)'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: validate_inputs
+      run: |
+        if [ -z "${{ inputs.project_id }}" ] && [ -z "${{ inputs.endpoint }}" ]; then
+          echo "Either project_id or endpoint is required"
+          exit 1
+        fi
+      shell: bash
+    - name: derive_project_id
+      # given [https://]gcr.io/your-project-id/foo/bar, project_id is your-project-id
+      run: |
+        echo "PROJECT_ID=$(echo ${{ inputs.endpoint }} | sed -E 's#^https?://##; s#gcr.io/([a-zA-Z0-9\-]+)\..*#\1#' | cut -d '/' -f 2)" >> $GITHUB_ENV
+      shell: bash
+      # Only run if project_id is not provided
+      if: ${{ !inputs.project_id }}
+    - name: Authenticate with GCP
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ inputs.service_key }}
+    - name: Set up GCloud
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ inputs.project_id }}
+    - name: Configure Docker Auth
+      run: gcloud auth configure-docker --quiet gcr.io
+      shell: bash
