@@ -27,7 +27,7 @@ jobs:
         run: echo "VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')" >> $GITHUB_ENV
 
       - name: Install Dependencies
-        run: npm install --loglevel=info --no-save @semantic-release/commit-analyzer @semantic-release/changelog @semantic-release/git @semantic-release/github
+        run: npm install --loglevel=info --no-save @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/github
 
       - name: Run Semantic Release
         env:

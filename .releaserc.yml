@@ -10,13 +10,5 @@ plugins:
   - "@semantic-release/commit-analyzer"
   # Generates release notes that get published with the release.
   - "@semantic-release/release-notes-generator"
-  # Creates a changelog file with all changes. This is published by the 'git'
-  # plugin.
-  - - "@semantic-release/changelog"
-    - changelogFile: "CHANGELOG.md"
-  # Commits changes to the repository upon release.
-  - - "@semantic-release/git"
-    - assets:
-        - CHANGELOG.md
   # Publishes a GitHub release with the given assets attached to the release.
-  - - "@semantic-release/github"
+  - "@semantic-release/github"
